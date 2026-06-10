@@ -3,910 +3,309 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>POF CBT — Principles of Flight</title>
+<title>Ultimate EASA Aviation CBT Simulator</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
 
   :root {
-    --bg: #080d1a;
-    --bg2: #0d1528;
-    --bg3: #121d35;
-    --card: #0f1a2e;
-    --card2: #16243f;
-    --border: #1e3052;
-    --border2: #2a4570;
-    --cyan: #00cfff;
-    --cyan2: #00a8d4;
-    --amber: #ffb700;
-    --green: #00e676;
-    --red: #ff4757;
-    --text: #e8f0ff;
-    --text2: #8fa8cc;
-    --text3: #4a6080;
-    --radius: 12px;
-    --radius2: 8px;
+    --bg: #080d1a; --bg2: #0d1528; --bg3: #121d35; --card: #0f1a2e;
+    --border: #1e3052; --border2: #2a4570; --cyan: #00cfff; --cyan2: #00a8d4;
+    --green: #00e676; --red: #ff4757; --amber: #ffb700; --text: #e8f0ff; --text2: #8fa8cc;
   }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Space Grotesk', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px;
   }
 
-  /* ---- Starfield ---- */
-  #stars { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
-  .star { position: absolute; background: #fff; border-radius: 50%; opacity: 0; animation: twinkle linear infinite; }
-  @keyframes twinkle { 0%, 100% { opacity: 0; } 50% { opacity: 0.6; } }
-
-  .app { position: relative; z-index: 1; width: 100%; max-width: 820px; padding: 20px 16px 48px; }
-
-  /* ---- Header ---- */
-  .header { text-align: center; padding: 32px 0 24px; }
-  .header-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(0,207,255,0.08); border: 1px solid rgba(0,207,255,0.2);
-    color: var(--cyan); font-size: 11px; font-weight: 600; letter-spacing: 2px;
-    padding: 5px 12px; border-radius: 20px; text-transform: uppercase; margin-bottom: 12px;
-  }
-  .header h1 {
-    font-size: clamp(24px, 5vw, 38px); font-weight: 700; line-height: 1.1;
-    background: linear-gradient(135deg, #fff 0%, var(--cyan) 60%, var(--amber) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    margin-bottom: 6px;
-  }
-  .header p { color: var(--text2); font-size: 14px; }
-
-  /* ---- Cards ---- */
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
-  .card + .card { margin-top: 16px; }
-
-  /* ---- Buttons ---- */
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 12px 24px; border-radius: var(--radius2); font-family: inherit;
-    font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; border: none; text-decoration: none;
-  }
-  .btn-primary { background: linear-gradient(135deg, var(--cyan2), var(--cyan)); color: #000; box-shadow: 0 0 20px rgba(0,207,255,0.3); }
-  .btn-primary:hover { box-shadow: 0 0 32px rgba(0,207,255,0.5); transform: translateY(-1px); }
-  .btn-outline { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
-  .btn-outline:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(0,207,255,0.05); }
-  .btn-ghost { background: transparent; color: var(--text3); font-size: 13px; padding: 8px 12px; }
-  .btn-ghost:hover { color: var(--text2); }
-  .btn-danger { background: rgba(255,71,87,0.15); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
-  .btn-danger:hover { background: rgba(255,71,87,0.25); }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-
-  /* ---- Setup Screen ---- */
-  #screen-setup { display: block; }
-  #screen-quiz, #screen-results, #screen-review { display: none; }
-  .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
-  @media(max-width: 520px) { .setup-grid { grid-template-columns: 1fr; } }
-
-  .mode-btn { padding: 20px; border-radius: var(--radius); border: 2px solid var(--border); background: var(--card); cursor: pointer; transition: all .2s; text-align: left; }
-  .mode-btn:hover { border-color: var(--border2); background: var(--card2); }
-  .mode-btn.selected { border-color: var(--cyan); background: rgba(0,207,255,0.06); }
-  .mode-btn .mode-icon { font-size: 28px; margin-bottom: 8px; }
-  .mode-btn .mode-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
-  .mode-btn .mode-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
-
-  .qty-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
-  .qty-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border2); background: transparent; color: var(--text2); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; }
-  .qty-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-  .qty-btn.selected { background: rgba(0,207,255,0.12); border-color: var(--cyan); color: var(--cyan); }
-
-  .section-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
-  .stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
-  .stat-box { flex: 1; min-width: 100px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius2); padding: 12px 16px; text-align: center; }
-  .stat-val { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono'; color: var(--cyan); }
-  .stat-lbl { font-size: 11px; color: var(--text3); margin-top: 2px; }
-
-  /* ---- Quiz Screen ---- */
-  .quiz-topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 0 20px; gap: 12px; flex-wrap: wrap; }
-  .quiz-meta { display: flex; align-items: center; gap: 12px; }
-  .q-counter { font-size: 13px; color: var(--text2); }
-  .q-counter span { color: var(--text); font-weight: 600; }
-  .timer-badge { display: flex; align-items: center; gap: 6px; background: rgba(255,183,0,0.1); border: 1px solid rgba(255,183,0,0.25); color: var(--amber); font-family: 'JetBrains Mono'; font-size: 13px; font-weight: 500; padding: 5px 12px; border-radius: 20px; }
-  .timer-badge.urgent { background: rgba(255,71,87,0.15); border-color: rgba(255,71,87,0.4); color: var(--red); animation: pulse 1s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-
-  .progress-track { width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 4px; overflow: hidden; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--cyan2), var(--cyan)); border-radius: 2px; transition: width .4s; }
-  .progress-pct { font-size: 11px; color: var(--text3); text-align: right; margin-bottom: 16px; }
-
-  .question-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 28px 20px; }
-  .q-number { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
-  .q-text { font-size: 16px; line-height: 1.65; color: var(--text); font-weight: 500; }
-
-  .options-list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
-  .option-btn { display: flex; align-items: flex-start; gap: 14px; width: 100%; text-align: left; padding: 14px 18px; border-radius: var(--radius2); border: 1.5px solid var(--border2); background: var(--bg2); cursor: pointer; transition: all .18s; font-family: inherit; color: var(--text2); font-size: 14px; line-height: 1.5; }
-  .option-btn:hover:not(:disabled) { border-color: var(--cyan); color: var(--text); background: rgba(0,207,255,0.04); }
-  .option-btn.selected { border-color: var(--cyan); color: var(--text); background: rgba(0,207,255,0.08); }
-  .option-btn.correct { border-color: var(--green); background: rgba(0,230,118,0.08); color: var(--text); }
-  .option-btn.wrong { border-color: var(--red); background: rgba(255,71,87,0.08); color: var(--text); }
-  .option-btn:disabled { cursor: default; }
-  .option-letter { display: flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; border-radius: 6px; border: 1.5px solid currentColor; font-weight: 700; font-size: 13px; flex-shrink: 0; margin-top: 1px; font-family: 'JetBrains Mono'; }
-  .option-btn.correct .option-letter { background: var(--green); border-color: var(--green); color: #000; }
-  .option-btn.wrong .option-letter { background: var(--red); border-color: var(--red); color: #fff; }
-  .option-btn.selected:not(.correct):not(.wrong) .option-letter { background: var(--cyan); border-color: var(--cyan); color: #000; }
-
-  .feedback-bar { margin-top: 16px; padding: 12px 16px; border-radius: var(--radius2); font-size: 13px; font-weight: 500; display: none; align-items: center; gap: 10px; }
-  .feedback-bar.show { display: flex; }
-  .feedback-bar.correct-fb { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.25); color: var(--green); }
-  .feedback-bar.wrong-fb { background: rgba(255,71,87,0.1); border: 1px solid rgba(255,71,87,0.25); color: var(--red); }
-
-  .quiz-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; gap: 12px; flex-wrap: wrap; }
-  .quiz-actions-left { display: flex; gap: 8px; }
-
-  .mark-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius2); border: 1px solid var(--border2); background: transparent; color: var(--text3); font-family: inherit; font-size: 13px; cursor: pointer; transition: all .2s; }
-  .mark-btn:hover { border-color: var(--amber); color: var(--amber); }
-  .mark-btn.marked { border-color: var(--amber); color: var(--amber); background: rgba(255,183,0,0.08); }
-  .nav-btns { display: flex; gap: 8px; }
-
-  /* ---- Results Screen ---- */
-  .score-hero { text-align: center; padding: 32px 20px; }
-  .score-ring-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-  .score-ring { transform: rotate(-90deg); }
-  .score-ring-bg { fill: none; stroke: var(--border2); stroke-width: 8; }
-  .score-ring-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1); }
-  .score-inner { position: absolute; text-align: center; }
-  .score-pct { font-size: 42px; font-weight: 700; font-family: 'JetBrains Mono'; }
-  .score-label { font-size: 12px; color: var(--text3); margin-top: 2px; }
-  .score-grade { font-size: 22px; font-weight: 700; margin: 8px 0 4px; }
-  .score-msg { font-size: 14px; color: var(--text2); }
-
-  .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
-  @media(max-width: 480px) { .results-grid { grid-template-columns: 1fr 1fr; } }
-  .result-tile { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius2); padding: 16px; text-align: center; }
-  .result-tile .val { font-size: 26px; font-weight: 700; font-family: 'JetBrains Mono'; }
-  .result-tile .lbl { font-size: 11px; color: var(--text3); margin-top: 4px; }
-  .result-tile.green .val { color: var(--green); }
-  .result-tile.red .val { color: var(--red); }
-  .result-tile.amber .val { color: var(--amber); }
-  .result-tile.cyan .val { color: var(--cyan); }
-  .results-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 24px; }
-
-  /* Best scores */
-  .history-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-  .history-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg3); border-radius: var(--radius2); font-size: 13px; }
-  .history-pct { font-family: 'JetBrains Mono'; font-weight: 600; min-width: 40px; }
-  .history-meta { color: var(--text3); font-size: 12px; flex: 1; }
-  .history-bar-wrap { width: 80px; height: 4px; background: var(--border); border-radius: 2px; }
-  .history-bar { height: 100%; border-radius: 2px; }
-
-  /* ---- Review Screen ---- */
-  .review-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-  .filter-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border2); background: transparent; color: var(--text2); font-family: inherit; font-size: 12px; cursor: pointer; transition: all .2s; }
-  .filter-btn.active { background: rgba(0,207,255,0.12); border-color: var(--cyan); color: var(--cyan); }
-  .review-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 12px; }
-  .review-item .rq-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
-  .review-status-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-  .review-status-icon.correct { background: rgba(0,230,118,0.15); color: var(--green); }
-  .review-status-icon.wrong { background: rgba(255,71,87,0.15); color: var(--red); }
-  .review-status-icon.skipped { background: rgba(255,183,0,0.1); color: var(--amber); }
-  .review-q-text { font-size: 14px; line-height: 1.6; color: var(--text); font-weight: 500; }
-  .review-opts { display: flex; flex-direction: column; gap: 6px; }
-  .review-opt { display: flex; gap: 10px; padding: 10px 14px; border-radius: var(--radius2); font-size: 13px; border: 1px solid transparent; }
-  .review-opt.correct { background: rgba(0,230,118,0.07); border-color: rgba(0,230,118,0.2); color: var(--text); }
-  .review-opt.wrong { background: rgba(255,71,87,0.07); border-color: rgba(255,71,87,0.2); color: var(--text); }
-  .review-opt.neutral { background: var(--bg2); color: var(--text2); }
-  .review-opt-letter { font-family: 'JetBrains Mono'; font-weight: 700; min-width: 18px; }
-  .review-tags { display: flex; gap: 6px; margin-top: 10px; }
-  .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
-  .tag-correct { background: rgba(0,230,118,0.1); color: var(--green); }
-  .tag-wrong { background: rgba(255,71,87,0.1); color: var(--red); }
-  .tag-your { background: rgba(0,207,255,0.08); color: var(--cyan); }
-  .tag-skipped { background: rgba(255,183,0,0.1); color: var(--amber); }
-
-  /* ---- Misc ---- */
-  .divider { height: 1px; background: var(--border); margin: 20px 0; }
-  .keyboard-hint { font-size: 11px; color: var(--text3); text-align: center; margin-top: 12px; }
-  .keyboard-hint kbd { display: inline-block; padding: 2px 6px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; font-family: 'JetBrains Mono'; font-size: 10px; color: var(--text2); }
-
-  .empty-state { text-align: center; padding: 40px 20px; color: var(--text3); }
-  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
-
-  .shuffle-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
-  .toggle-switch { width: 40px; height: 22px; background: var(--border2); border-radius: 11px; position: relative; transition: background .2s; flex-shrink: 0; }
-  .toggle-switch::after { content: ''; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: left .2s; }
-  .shuffle-toggle.on .toggle-switch { background: var(--cyan); }
-  .shuffle-toggle.on .toggle-switch::after { left: 21px; }
-  .no-select { user-select: none; }
+  .app { width: 100%; max-width: 850px; z-index: 1; }
+  header { text-align: center; padding: 20px 0; }
+  h1 { font-size: 28px; color: #fff; text-shadow: 0 0 10px rgba(0,207,255,0.4); margin-bottom: 5px; }
   
-  /* Loading */
-  .loading-overlay { display:none; position:fixed; inset:0; background:rgba(8,13,26,0.8); z-index:100; align-items:center; justify-content:center; flex-direction:column; gap:12px; }
-  .loading-overlay.show { display:flex; }
-  .spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--cyan); border-radius:50%; animation:spin .7s linear infinite; }
-  @keyframes spin { to { transform:rotate(360deg); } }
+  .subject-select-wrap { margin-bottom: 15px; text-align: center; }
+  select {
+    background: var(--bg2); color: var(--cyan); border: 2px solid var(--cyan);
+    padding: 10px 16px; font-family: inherit; font-size: 16px; font-weight: bold;
+    border-radius: 8px; cursor: pointer; outline: none;
+  }
 
-  /* ============ MANAGER SCREEN CSS ============ */
-  #screen-manager { display: none; }
-  .manager-topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 0 20px; gap: 12px; flex-wrap: wrap; }
-  .manager-topbar h2 { font-size: 20px; font-weight: 700; }
-  .manager-tabs { display: flex; gap: 0; margin-bottom: 20px; border-radius: var(--radius2); overflow: hidden; border: 1px solid var(--border2); }
-  .mtab { flex: 1; padding: 10px 16px; font-family: inherit; font-size: 13px; font-weight: 600; background: transparent; color: var(--text3); border: none; cursor: pointer; transition: all .2s; border-right: 1px solid var(--border2); text-align: center; }
-  .mtab:last-child { border-right: none; }
-  .mtab:hover { color: var(--text2); background: rgba(255,255,255,0.03); }
-  .mtab.active { background: rgba(0,207,255,0.12); color: var(--cyan); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px;
+    border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    border: none; transition: all 0.2s; background: var(--border2); color: #fff;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--cyan2), var(--cyan)); color: #000; font-weight: bold; }
+  .btn-primary:hover { box-shadow: 0 0 15px rgba(0,207,255,0.5); }
+  .btn-success { background: var(--green); color: #000; font-weight: bold; }
+  
+  .panel { display: none; }
+  .panel.active { display: block; }
 
-  .mpanel { display: none; }
-  .mpanel.active { display: block; }
+  /* Grid Layouts */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 0; }
+  @media(max-width: 500px){ .grid-2 { grid-template-columns: 1fr; } }
 
-  /* Add/Edit Form */
-  .q-form { display: flex; flex-direction: column; gap: 14px; }
-  .form-field { display: flex; flex-direction: column; gap: 6px; }
-  .form-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); }
-  .form-input, .form-textarea { background: var(--bg2); border: 1.5px solid var(--border2); border-radius: var(--radius2); color: var(--text); font-family: inherit; font-size: 14px; padding: 10px 14px; width: 100%; transition: border-color .2s; resize: vertical; }
-  .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--cyan); }
-  .form-textarea { min-height: 72px; line-height: 1.5; }
-  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  @media(max-width: 520px) { .options-grid { grid-template-columns: 1fr; } }
-  .option-field { display: flex; flex-direction: column; gap: 5px; }
-  .option-field-label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text2); font-weight: 600; }
-  .opt-badge { width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono'; background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); flex-shrink: 0; }
+  /* Option Buttons */
+  .option-btn {
+    width: 100%; text-align: left; padding: 12px 16px; background: var(--bg2);
+    border: 1.5px solid var(--border2); color: var(--text2); border-radius: 8px;
+    margin-bottom: 8px; font-family: inherit; cursor: pointer; font-size: 15px;
+  }
+  .option-btn:hover { border-color: var(--cyan); color: #fff; }
+  .option-btn.selected { border-color: var(--cyan); background: rgba(0,207,255,0.1); color: #fff; }
+  .option-btn.correct { border-color: var(--green); background: rgba(0,230,118,0.1); color: #fff; }
+  .option-btn.wrong { border-color: var(--red); background: rgba(255,71,87,0.1); color: #fff; }
 
-  .answer-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
-  .ans-opt { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 20px; border: 1.5px solid var(--border2); cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text2); transition: all .2s; font-family: inherit; background: transparent; }
-  .ans-opt:hover { border-color: var(--cyan); color: var(--cyan); }
-  .ans-opt.selected { border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.08); }
-
-  .form-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
-
-  /* Custom question list */
-  .cq-list { display: flex; flex-direction: column; gap: 10px; }
-  .cq-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; transition: border-color .2s; }
-  .cq-item:hover { border-color: var(--border2); }
-  .cq-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-  .cq-question { font-size: 14px; line-height: 1.6; color: var(--text); font-weight: 500; flex: 1; }
-  .cq-actions { display: flex; gap: 6px; flex-shrink: 0; }
-  .cq-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  @media(max-width: 480px) { .cq-opts { grid-template-columns: 1fr; } }
-  .cq-opt { font-size: 12px; color: var(--text2); padding: 5px 10px; background: var(--bg2); border-radius: 6px; }
-  .cq-opt.correct { color: var(--green); background: rgba(0,230,118,0.07); }
-  .cq-opt-letter { font-family: 'JetBrains Mono'; font-weight: 700; margin-right: 6px; }
-
-  .btn-icon { padding: 6px 10px; border-radius: var(--radius2); font-size: 13px; border: 1px solid var(--border2); background: transparent; color: var(--text3); cursor: pointer; transition: all .2s; font-family: inherit; }
-  .btn-icon:hover { border-color: var(--cyan); color: var(--cyan); }
-  .btn-icon.del:hover { border-color: var(--red); color: var(--red); }
-
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--card2); border: 1px solid var(--border2); border-radius: var(--radius2); padding: 10px 20px; font-size: 13px; font-weight: 500; z-index: 200; transition: transform .3s cubic-bezier(.4,0,.2,1); white-space: nowrap; max-width: 90vw; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.success { border-color: rgba(0,230,118,0.4); color: var(--green); }
-  .toast.error { border-color: rgba(255,71,87,0.4); color: var(--red); }
+  /* Importer styles */
+  textarea {
+    width: 100%; height: 200px; background: var(--bg2); color: #fff;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 12px;
+    border: 1px solid var(--border2); border-radius: 8px; resize: vertical; margin-bottom: 12px;
+  }
 </style>
 </head>
 <body>
 
-<div id="stars"></div>
-
 <div class="app">
-  <header class="header">
-    <div class="header-badge">🚀 CBT Prep System</div>
-    <h1>Principles of Flight</h1>
-    <p>Practice Simulator & Question Bank Manager</p>
+  <header>
+    <h1>✈️ ATPL Core Simulator</h1>
+    <p style="color: var(--text2)">Multi-Subject Study Engine</p>
   </header>
 
-  <div id="screen-setup" class="card">
-    <h3 class="section-label">1. Choose Simulator Mode</h3>
-    <div class="setup-grid">
-      <div class="mode-btn selected" onclick="selectMode('practice', this)">
-        <div class="mode-icon">📚</div>
-        <div class="mode-title">Practice Mode</div>
-        <div class="mode-desc">Instant check validation after answering each question.</div>
-      </div>
-      <div class="mode-btn" onclick="selectMode('exam', this)">
-        <div class="mode-icon">⏱️</div>
-        <div class="mode-title">Exam Mode</div>
-        <div class="mode-desc">Live timer simulation. Score answers at the final summary page.</div>
-      </div>
-    </div>
+  <div class="subject-select-wrap">
+    <label style="font-size: 12px; color: var(--text2); display:block; margin-bottom:5px;">ACTIVE SUBJECT:</label>
+    <select id="subject-selector" onchange="changeSubject()">
+      <option value="POF">081 - Principles of Flight (POF)</option>
+      <option value="AGK">021 - Airframe, Systems, Powerplant (AGK)</option>
+      <option value="MET">050 - Meteorology</option>
+      <option value="NAV">061 - General Navigation</option>
+      <option value="LAW">010 - Air Law</option>
+      <option value="OPS">070 - Operational Procedures</option>
+      <option value="PERF">032 - Performance</option>
+      <option value="FPM">031 - Flight Planning & Monitoring</option>
+      <option value="HPL">040 - Human Performance</option>
+      <option value="RNAV">062 - Radio Navigation</option>
+      <option value="INST">022 - Instrumentation</option>
+      <option value="MASS">033 - Mass & Balance</option>
+      <option value="COMM">090 - Communications</option>
+    </select>
+  </div>
 
-    <h3 class="section-label">2. Selection Size</h3>
-    <div class="qty-grid">
-      <button class="qty-btn" onclick="selectQty(10, this)">10 Qs</button>
-      <button class="qty-btn" onclick="selectQty(20, this)">20 Qs</button>
-      <button class="qty-btn selected" onclick="selectQty(50, this)">50 Qs</button>
-      <button class="qty-btn" onclick="selectQty(100, this)">100 Qs</button>
-    </div>
+  <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+    <button class="btn" onclick="showScreen('setup')">🏠 Home</button>
+    <button class="btn" onclick="showScreen('importer')">📥 Bulk Importer</button>
+  </div>
 
-    <div style="margin: 24px 0;">
-      <div id="shuffle-toggle" class="shuffle-toggle on" onclick="toggleShuffle()">
-        <div class="toggle-switch"></div>
-        <span style="font-size:14px;font-weight:500;">Randomize Question Order Selection</span>
-      </div>
-    </div>
-
-    <div style="display:flex; gap:12px; margin-top:24px;">
-      <button class="btn btn-primary" style="flex:1;" onclick="startQuiz()">Launch Simulator ⚡</button>
-      <button class="btn btn-outline" onclick="openManager()">🛠️ Question Bank</button>
-    </div>
-
-    <div class="divider"></div>
-    <h3 class="section-label">Your Dashboard History</h3>
-    <div id="history-list" class="history-list">
-      <div class="empty-state" style="padding:20px;"><p>No quiz scores recorded yet.</p></div>
+  <div id="screen-setup" class="panel active card">
+    <h3 style="margin-bottom:10px;">Practice Lab</h3>
+    <p style="color: var(--text2); margin-bottom:15px;" id="bank-status">0 questions loaded for this subject.</p>
+    
+    <label>Select Question Count:</label>
+    <div class="grid-2">
+      <button class="btn btn-primary" onclick="startQuiz(20)">Quick Test (20 Qs)</button>
+      <button class="btn btn-primary" onclick="startQuiz(50)">Full Block (50 Qs)</button>
     </div>
   </div>
 
-  <div id="screen-quiz" class="card" style="display:none;">
-    <div class="quiz-topbar">
-      <div class="quiz-meta">
-        <div class="q-counter">Question <span id="q-current">1</span>/<span id="q-total">50</span></div>
-        <div id="timer-wrap" class="timer-badge" style="display:none;">⏱️ <span id="timer-val">00:00</span></div>
-      </div>
-      <div style="display:flex; gap:12px; font-family:'JetBrains Mono'; font-size:12px;">
-        <span id="score-correct" style="color:var(--green)">✓ 0</span>
-        <span id="score-wrong" style="color:var(--red)">✗ 0</span>
-      </div>
+  <div id="screen-quiz" class="panel card">
+    <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--cyan); margin-bottom:10px;">
+      <span id="quiz-progress">Question 1 of 10</span>
+      <span id="quiz-score">Score: 0/0</span>
     </div>
-
-    <div class="progress-track"><div id="progress-fill" class="progress-fill" style="width:0%;"></div></div>
-    <div class="progress-pct" id="progress-pct">0%</div>
-
-    <div class="question-card">
-      <div class="q-number" id="q-number">QUESTION 1</div>
-      <div class="q-text" id="q-text">Loading question statement text...</div>
-      <div class="options-list" id="options-list"></div>
-      <div id="feedback-bar" class="feedback-bar"></div>
-    </div>
-
-    <div class="quiz-actions">
-      <div class="quiz-actions-left">
-        <button id="mark-btn" class="mark-btn" onclick="toggleMark()"><span id="mark-label">Mark</span></button>
-      </div>
-      <div class="nav-btns">
-        <button class="btn btn-outline" style="padding:10px 18px;" onclick="prevQuestion()">Prev</button>
-        <button id="next-btn" class="btn btn-primary" style="padding:10px 20px;" onclick="nextQuestion()">Next</button>
-      </div>
+    <h2 id="question-text" style="font-size:17px; margin-bottom:20px; line-height:1.5;"></h2>
+    <div id="options-container"></div>
+    
+    <div style="margin-top:20px; text-align:right;">
+      <button id="next-btn" class="btn" onclick="nextQuestion()" disabled>Next Question ➡️</button>
     </div>
   </div>
 
-  <div id="screen-results" class="card" style="display:none;">
-    </div>
-
-  <div id="screen-review" class="card" style="display:none;">
-    </div>
-
-  <div id="screen-manager" class="card" style="display:none;">
-    <div class="manager-topbar">
-      <button class="btn btn-ghost" onclick="showSetup()">← Back</button>
-      <h2>Question Bank</h2>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-outline" onclick="exportCustomQuestions()" style="font-size:12px;padding:8px 14px;">⬇ Export</button>
-        <button class="btn btn-primary" onclick="exportUpdatedBank()" style="font-size:12px;padding:8px 14px;background-color:var(--cyan);color:#000;">💾 Copy Updated Bank Code</button>
-      </div>
-    </div>
-
-    <div class="manager-tabs">
-      <button id="tab-add" class="mtab active" onclick="switchManagerTab('add')">✏️ Add/Edit Question</button>
-      <button id="tab-view" class="mtab" onclick="switchManagerTab('view')">📁 View Questions (<span id="bank-count-tab">0</span>)</button>
-    </div>
-
-    <div id="panel-add" class="mpanel active">
-      <div class="q-form">
-        <div class="form-field">
-          <label class="form-label">Question Text</label>
-          <textarea id="q-input-text" class="form-textarea" placeholder="Type the question content here..."></textarea>
-        </div>
-        <div class="options-grid">
-          <div class="option-field">
-            <label class="option-field-label"><span class="opt-badge">A</span> Option A</label>
-            <input id="opt-a" type="text" class="form-input">
-          </div>
-          <div class="option-field">
-            <label class="option-field-label"><span class="opt-badge">B</span> Option B</label>
-            <input id="opt-b" type="text" class="form-input">
-          </div>
-          <div class="option-field">
-            <label class="option-field-label"><span class="opt-badge">C</span> Option C</label>
-            <input id="opt-c" type="text" class="form-input">
-          </div>
-          <div class="option-field">
-            <label class="option-field-label"><span class="opt-badge">D</span> Option D</label>
-            <input id="opt-d" type="text" class="form-input">
-          </div>
-        </div>
-        <div class="form-field">
-          <label class="form-label">Correct Answer</label>
-          <div class="answer-picker">
-            <button class="ans-opt" onclick="selectFormAnswer('A', this)">A</button>
-            <button class="ans-opt" onclick="selectFormAnswer('B', this)">B</button>
-            <button class="ans-opt" onclick="selectFormAnswer('C', this)">C</button>
-            <button class="ans-opt" onclick="selectFormAnswer('D', this)">D</button>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-primary" onclick="saveQuestionForm()">Save to Active Session</button>
-          <button class="btn btn-outline" onclick="clearForm()">Clear Grid</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="panel-view" class="mpanel">
-      <div id="bank-count" style="margin-bottom:12px;font-size:13px;color:var(--text2);">0 questions loaded</div>
-      <div class="cq-list"></div>
-    </div>
+  <div id="screen-importer" class="panel card">
+    <h2 style="margin-bottom:10px; color: var(--cyan)">📥 Bulk Smart Importer</h2>
+    <p style="font-size:13px; color:var(--text2); margin-bottom:15px;">
+      Paste your text file contents below. The system will read them and automatically **skip any questions** that match existing text to protect against duplication!
+    </p>
+    
+    <textarea id="import-input" placeholder="Paste your question txt dump data here..."></textarea>
+    
+    <button class="btn btn-success" onclick="processBulkImport()">⚡ Run Smart Import</button>
+    <button class="btn" style="background:#ff4757; color:#fff;" onclick="clearSubjectBank()">🗑️ Wipe Current Subject Bank</button>
   </div>
 
 </div>
 
-<div id="toast" class="toast">Action logged successfully!</div>
-
 <script>
-// ===================== MASTER BANK DATA ARRAY =====================
-let QUESTIONS = [
-  {
-    "question": "The wing must be:",
-    "options": {
-      "A": "forward of the CG",
-      "B": "aft of the CG",
-      "C": "coincident with the CG",
-      "D": "coincident with the AC"
-    },
-    "answer": "B"
-  },
-  {
-    "question": "A symmetrical aerofoil section of a wing is set at zero AOA will produce:",
-    "options": {
-      "A": "most of the lift on the upper surface",
-      "B": "most of the lift on the lower surface",
-      "C": "depends on the aircraft's speed",
-      "D": "zero lift"
-    },
-    "answer": "D"
-  },
-  {
-    "question": "Which of the following creates lift?",
-    "options": {
-      "A": "a slightly cambered aerofoil",
-      "B": "an aerofoil in a high speed flow",
-      "C": "air accelerated upwards",
-      "D": "air accelerated downwards."
-    },
-    "answer": "D"
-  },
-  {
-    "question": "Where does airflow separation begin?",
-    "options": {
-      "A": "Upper surface / towards the leading edge",
-      "B": "lower surface/ towards the trailing edge",
-      "C": "upper surface / towards the trailing edge",
-      "D": "lower surface / towards the leading edge"
-    },
-    "answer": "C"
-  },
-  {
-    "question": "When considering the aerodynamic forces acting on an aerofoil section:",
-    "options": {
-      "A": "lift and drag increase linearly with an increase in angle of attack",
-      "B": "lift and drag act normal to each other only at one angle of attack",
-      "C": "lift and drag increase exponentially with an increase in angle of attack",
-      "D": "lift increases linearly and drag increases exponentially with an increase in angle of attack"
-    },
-    "answer": "D"
-  },
-  {
-    "question": "Consider a positively cambered aerofoil section, the pitching moment when Cl = 0 will be:",
-    "options": {
-      "A": "negative",
-      "B": "infinite",
-      "C": "positive",
-      "D": "equal to zero"
-    },
-    "answer": "A"
-  },
-  {
-    "question": "On a cambered airfoil, as the angle of attack increases from zero to about ten degrees, the Centre of Pressure:",
-    "options": {
-      "A": "Moves back and then forward",
-      "B": "Remains in the same place.",
-      "C": "Moves forward and then remains in the same place.",
-      "D": "Moves back and then remains in the same place."
-    },
-    "answer": "C"
-  },
-  {
-    "question": "An aeroplane maintains straight and level flight while the IAS is doubled. The change in lift coefficient will be:",
-    "options": {
-      "A": "x 0.25",
-      "B": "x 2.0",
-      "C": "x 0.5",
-      "D": "x 4.0"
-    },
-    "answer": "A"
-  },
-  {
-    "question": "The density of the airstream decreases to half of the original value. The aerodynamic drag will decrease with a factor:",
-    "options": {
-      "A": "4",
-      "B": "2",
-      "C": "8",
-      "D": "1.4"
-    },
-    "answer": "B"
-  },
-  {
-    "question": "The aerofoil polar is :",
-    "options": {
-      "A": "the relation between the horizontal and the vertical, speed.",
-      "B": "a graph of the relation between the lift coefficient the angle of attack.",
-      "C": "a graph of the relation between the lift coefficient and the drag coefficient.",
-      "D": "a graph, in which the thickness of the wing aerofoil is given as a function of the chord."
-    },
-    "answer": "C"
-  }
-];
+  // Master database holding questions for all subjects
+  let MASTER_DB = JSON.parse(localStorage.getItem('aviation_cbt_master') || '{"POF":[],"AGK":[],"MET":[],"NAV":[],"LAW":[],"OPS":[],"PERF":[],"FPM":[],"HPL":[],"RNAV":[],"INST":[],"MASS":[],"COMM":[]}');
 
-// Update item labels instantly
-document.getElementById('bank-count').textContent = QUESTIONS.length + ' questions loaded';
-document.getElementById('bank-count-tab').textContent = QUESTIONS.length;
+  let currentSubject = "POF";
+  let quizPool = [];
+  let currentQuizIdx = 0;
+  let correctCount = 0;
+  let answeredCount = 0;
 
-// ===================== APPLICATION STATE =====================
-let cfg = { mode: 'practice', qty: 50, shuffle: true };
-let session = { questions: [], current: 0, answers: {}, marked: new Set(), correct: 0, wrong: 0, startTime: null, endTime: null, confirmed: {} };
-let selectedFormAnswerLetter = '';
-let editingIndex = null;
-
-// ===================== STARS BG EFFECT =====================
-(function() {
-  const container = document.getElementById('stars');
-  for (let i = 0; i < 80; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    const size = Math.random() * 2 + 0.5;
-    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:${Math.random()*5}s;`;
-    container.appendChild(s);
-  }
-})();
-
-// ===================== ENGINE CONTROLLER HISTORY =====================
-function getHistory() { try { return JSON.parse(localStorage.getItem('pof_history') || '[]'); } catch { return []; } }
-function saveHistory(entry) { const h = getHistory(); h.unshift(entry); if (h.length > 20) h.splice(20); try { localStorage.setItem('pof_history', JSON.stringify(h)); } catch {} }
-function getStats() { const h = getHistory(); if (!h.length) return null; const scores = h.map(e => e.pct); return { count: h.length, best: Math.max(...scores), avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length), totalQs: h.reduce((a, e) => a + e.total, 0) }; }
-
-function renderHistory() {
-  const stats = getStats();
-  const list = document.getElementById('history-list');
-  const h = getHistory();
-  if (!h.length) return;
-  list.innerHTML = h.slice(0, 6).map(e => {
-    const color = e.pct >= 75 ? 'var(--green)' : e.pct >= 50 ? 'var(--amber)' : 'var(--red)';
-    return `<div class="history-item">
-      <span class="history-pct" style="color:${color};">${e.pct}%</span>
-      <span class="history-meta">${e.correct}/${e.total} correct &nbsp;·&nbsp; ${e.mode} &nbsp;·&nbsp; ${e.date}</span>
-      <div class="history-bar-wrap"><div class="history-bar" style="width:${e.pct}%;background:${color};"></div></div>
-    </div>`;
-  }).join('');
-}
-
-// ===================== SETUP VIEW ACTIONS =====================
-function selectMode(mode, el) { cfg.mode = mode; document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected')); el.classList.add('selected'); }
-function selectQty(qty, el) { cfg.qty = qty; document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('selected')); el.classList.add('selected'); }
-let shuffleOn = true;
-function toggleShuffle() { shuffleOn = !shuffleOn; const el = document.getElementById('shuffle-toggle'); el.classList.toggle('on', shuffleOn); }
-
-function showSetup() {
-  ['screen-quiz', 'screen-results', 'screen-review', 'screen-manager'].forEach(id => document.getElementById(id).style.display = 'none');
-  document.getElementById('screen-setup').style.display = 'block';
-  renderHistory();
-}
-
-// ===================== MANAGER BRAIN CONTROLS =====================
-function openManager() {
-  document.getElementById('screen-setup').style.display = 'none';
-  document.getElementById('screen-manager').style.display = 'block';
-  switchManagerTab('add');
-  renderBankQuestions();
-}
-
-function switchManagerTab(tab) {
-  document.querySelectorAll('.mtab').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.mpanel').forEach(p => p.classList.remove('active'));
-  
-  if(tab === 'add') {
-    document.getElementById('tab-add').classList.add('active');
-    document.getElementById('panel-add').classList.add('active');
-  } else {
-    document.getElementById('tab-view').classList.add('active');
-    document.getElementById('panel-view').classList.add('active');
-    renderBankQuestions();
-  }
-}
-
-function selectFormAnswer(letter, el) {
-  selectedFormAnswerLetter = letter;
-  document.querySelectorAll('.ans-opt').forEach(b => b.classList.remove('selected'));
-  if(el) {
-    el.classList.add('selected');
-  } else {
-    // find button based on letter value manually if called inside program index loops
-    const options = document.querySelectorAll('.ans-opt');
-    options.forEach(opt => { if(opt.textContent === letter) opt.classList.add('selected'); });
-  }
-}
-
-function clearForm() {
-  document.getElementById('q-input-text').value = '';
-  document.getElementById('opt-a').value = '';
-  document.getElementById('opt-b').value = '';
-  document.getElementById('opt-c').value = '';
-  document.getElementById('opt-d').value = '';
-  selectedFormAnswerLetter = '';
-  document.querySelectorAll('.ans-opt').forEach(b => b.classList.remove('selected'));
-  editingIndex = null;
-}
-
-function saveQuestionForm() {
-  const txt = document.getElementById('q-input-text').value.trim();
-  const a = document.getElementById('opt-a').value.trim();
-  const b = document.getElementById('opt-b').value.trim();
-  const c = document.getElementById('opt-c').value.trim();
-  const d = document.getElementById('opt-d').value.trim();
-
-  if(!txt || !a || !b || !selectedFormAnswerLetter) {
-    showToast("⚠️ Missing details! Fill out Question, Opt A, Opt B, and Pick Answer.", "error");
-    return;
+  function updateStatusText() {
+    let count = MASTER_DB[currentSubject] ? MASTER_DB[currentSubject].length : 0;
+    document.getElementById('bank-status').textContent = count + " unique questions loaded in your local browser storage for " + currentSubject + ".";
   }
 
-  const payload = {
-    question: txt,
-    options: { A: a, B: b },
-    answer: selectedFormAnswerLetter
-  };
-  if(c) payload.options.C = c;
-  if(d) payload.options.D = d;
-
-  if (editingIndex !== null) {
-    QUESTIONS[editingIndex] = payload;
-    showToast("✏️ Question successfully edited inside pool!");
-    editingIndex = null;
-  } else {
-    QUESTIONS.push(payload);
-    showToast("🚀 New question loaded into active list!");
+  function changeSubject() {
+    currentSubject = document.getElementById('subject-selector').value;
+    updateStatusText();
   }
 
-  clearForm();
-  renderBankQuestions();
-}
-
-function renderBankQuestions() {
-  const container = document.querySelector('.cq-list');
-  if(!container) return;
-  container.innerHTML = '';
-
-  document.getElementById('bank-count').textContent = QUESTIONS.length + ' questions loaded';
-  document.getElementById('bank-count-tab').textContent = QUESTIONS.length;
-
-  if(QUESTIONS.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="icon">📁</div><p>No questions inside your database yet!</p></div>`;
-    return;
+  function showScreen(screenId) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('screen-' + screenId).classList.add('active');
+    if(screenId === 'setup') updateStatusText();
   }
 
-  QUESTIONS.forEach((q, idx) => {
-    const item = document.createElement('div');
-    item.className = 'cq-item';
-    item.innerHTML = `
-      <div class="cq-header">
-        <p class="cq-question"><strong>#${idx + 1}:</strong> ${q.question}</p>
-        <div class="cq-actions">
-          <button class="btn-icon" onclick="editQuestion(${idx})">✏️ Edit</button>
-          <button class="btn-icon del" onclick="deleteQuestion(${idx})">🗑️ Delete</button>
-        </div>
-      </div>
-      <div class="cq-opts">
-        <div class="cq-opt ${q.answer === 'A' ? 'correct' : ''}"><span class="cq-opt-letter">A:</span> ${q.options.A}</div>
-        <div class="cq-opt ${q.answer === 'B' ? 'correct' : ''}"><span class="cq-opt-letter">B:</span> ${q.options.B}</div>
-        <div class="cq-opt ${q.answer === 'C' ? 'correct' : ''}"><span class="cq-opt-letter">C:</span> ${q.options.C || 'N/A'}</div>
-        <div class="cq-opt ${q.answer === 'D' ? 'correct' : ''}"><span class="cq-opt-letter">D:</span> ${q.options.D || 'N/A'}</div>
-      </div>
-    `;
-    container.appendChild(item);
-  });
-}
+  // --- SMART ANTI-DUPLICATE IMPORTER ---
+  function processBulkImport() {
+    let rawText = document.getElementById('import-input').value;
+    if(!rawText.trim()) { alert("Please paste text first!"); return; }
 
-function deleteQuestion(idx) {
-  if(confirm("Are you sure you want to delete this question?")) {
-    QUESTIONS.splice(idx, 1);
-    renderBankQuestions();
-    showToast("🗑️ Question removed from active collection.");
+    // Split text into individual chunks by separating on the word "Question:"
+    let chunks = rawText.split(/Question:/i);
+    let addedCount = 0;
+    let duplicateCount = 0;
+
+    if (!MASTER_DB[currentSubject]) MASTER_DB[currentSubject] = [];
+    
+    // Create a fast lookup map of existing questions to spot duplicates easily
+    let existingTexts = new Set(MASTER_DB[currentSubject].map(q => cleanString(q.question)));
+
+    chunks.forEach(chunk => {
+      if(!chunk.trim()) return;
+
+      // Extract details using lines
+      let lines = chunk.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      let questionText = "";
+      let options = {};
+      let answerKey = "";
+
+      lines.forEach(line => {
+        if (line.toUpperCase().startsWith("A:")) options["A"] = line.substring(2).trim();
+        else if (line.toUpperCase().startsWith("B:")) options["B"] = line.substring(2).trim();
+        else if (line.toUpperCase().startsWith("C:")) options["C"] = line.substring(2).trim();
+        else if (line.toUpperCase().startsWith("D:")) options["D"] = line.substring(2).trim();
+        else if (line.toUpperCase().startsWith("ANSWER:")) answerKey = line.substring(7).trim().toUpperCase();
+        else {
+          if (!line.toUpperCase().startsWith("QUESTION:")) {
+            questionText += (questionText ? " " : "") + line;
+          }
+        }
+      });
+
+      if(!questionText) return;
+      if(!answerKey) answerKey = "A"; // default failover
+
+      let cleanQ = cleanString(questionText);
+
+      // DUPLICATE CHECK PROOFING: If it matches something already in our system, skip it!
+      if (existingTexts.has(cleanQ)) {
+        duplicateCount++;
+      } else {
+        MASTER_DB[currentSubject].push({
+          question: questionText,
+          options: options,
+          answer: answerKey
+        });
+        existingTexts.add(cleanQ);
+        addedCount++;
+      }
+    });
+
+    // Save to browser memory
+    localStorage.setItem('aviation_cbt_master', JSON.stringify(MASTER_DB));
+    alert("Import Done!\nAdded: " + addedCount + " new questions.\nSkipped Duplicates: " + duplicateCount);
+    document.getElementById('import-input').value = "";
+    showScreen('setup');
   }
-}
 
-function editQuestion(idx) {
-  editingIndex = idx;
-  const q = QUESTIONS[idx];
-  document.getElementById('q-input-text').value = q.question;
-  document.getElementById('opt-a').value = q.options.A;
-  document.getElementById('opt-b').value = q.options.B;
-  document.getElementById('opt-c').value = q.options.C || '';
-  document.getElementById('opt-d').value = q.options.D || '';
-  selectFormAnswer(q.answer, null);
-  switchManagerTab('add');
-  showToast("✏️ Details loaded back to editor panel.");
-}
+  function cleanString(str) {
+    return str.toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
 
-function exportUpdatedBank() {
-  const outputCode = "let QUESTIONS = " + JSON.stringify(QUESTIONS, null, 2) + ";";
-  const el = document.createElement('textarea');
-  el.value = outputCode;
-  document.body.appendChild(el);
-  el.select();
-  document.execCommand('copy');
-  document.body.removeChild(el);
-  alert("🚀 EXPORT SUCCESS!\n\nYour entire updated Question Bank code is copied to your Clipboard!\n\nPaste it inside your txt file array directly.");
-}
-
-function exportCustomQuestions() {
-  exportUpdatedBank();
-}
-
-// ===================== QUIZ SIMULATOR LOGIC INTERFACES =====================
-function startQuiz() {
-  document.getElementById('loading-overlay').classList.add('show');
-  setTimeout(() => {
-    let pool = [...QUESTIONS];
-    if (shuffleOn) pool = pool.sort(() => Math.random() - 0.5);
-    const n = Math.min(cfg.qty, pool.length);
-    session.questions = pool.slice(0, n);
-    session.current = 0;
-    session.answers = {};
-    session.confirmed = {};
-    session.marked = new Set();
-    session.correct = 0;
-    session.wrong = 0;
-    session.startTime = Date.now();
-    session.endTime = null;
-
-    document.getElementById('q-total').textContent = n;
-    ['screen-setup', 'screen-results', 'screen-review', 'screen-manager'].forEach(id => document.getElementById(id).style.display = 'none');
-    document.getElementById('screen-quiz').style.display = 'block';
-
-    if (cfg.mode === 'exam') {
-      document.getElementById('timer-wrap').style.display = 'block';
-      startTimer();
-    } else {
-      document.getElementById('timer-wrap').style.display = 'none';
-      if (timerInterval) clearInterval(timerInterval);
+  function clearSubjectBank() {
+    if(confirm("Are you sure you want to clear ALL questions for " + currentSubject + "?")) {
+      MASTER_DB[currentSubject] = [];
+      localStorage.setItem('aviation_cbt_master', JSON.stringify(MASTER_DB));
+      updateStatusText();
+      alert("Cleared!");
     }
-    renderQuestion();
-    document.getElementById('loading-overlay').classList.remove('show');
-  }, 50);
-}
+  }
 
-let timerInterval = null;
-function startTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = setInterval(updateTimer, 1000); updateTimer(); }
-function updateTimer() {
-  const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
-  const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
-  const s = String(elapsed % 60).padStart(2, '0');
-  document.getElementById('timer-val').textContent = m + ':' + s;
-}
-
-function renderQuestion() {
-  const idx = session.current;
-  const q = session.questions[idx];
-  if (!q) return;
-
-  const n = idx + 1;
-  const total = session.questions.length;
-  document.getElementById('q-current').textContent = n;
-  document.getElementById('q-number').textContent = 'QUESTION ' + n;
-  document.getElementById('q-text').textContent = q.question;
-
-  const pct = Math.round((idx) / total * 100);
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-pct').textContent = pct + '%';
-
-  document.getElementById('score-correct').textContent = '✓ ' + session.correct;
-  document.getElementById('score-wrong').textContent = '✗ ' + session.wrong;
-
-  const marked = session.marked.has(idx);
-  document.getElementById('mark-btn').classList.toggle('marked', marked);
-  document.getElementById('mark-label').textContent = marked ? 'Marked' : 'Mark';
-
-  const confirmed = session.confirmed[idx];
-  const selected = session.answers[idx];
-  const optsList = document.getElementById('options-list');
-  optsList.innerHTML = '';
-
-  Object.keys(q.options).forEach(letter => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    if (selected === letter) btn.classList.add('selected');
-    if (confirmed) {
-      btn.disabled = true;
-      if (letter === q.answer) btn.classList.add('correct');
-      else if (letter === selected) btn.classList.add('wrong');
+  // --- QUIZ GAME LOGIC ---
+  function startQuiz(amount) {
+    let fullPool = MASTER_DB[currentSubject] || [];
+    if(fullPool.length === 0) {
+      alert("Your bank is empty! Go to the Bulk Importer tab first to load questions.");
+      return;
     }
-    btn.innerHTML = `<span class="option-letter">${letter}</span><span>${q.options[letter]}</span>`;
-    btn.onclick = () => selectOption(letter);
-    optsList.appendChild(btn);
-  });
-
-  const fb = document.getElementById('feedback-bar');
-  if (confirmed && cfg.mode === 'practice') {
-    fb.className = 'feedback-bar show ' + (selected === q.answer ? 'correct-fb' : 'wrong-fb');
-    fb.innerHTML = selected === q.answer ? '🎯 Correct Answer Validation!' : `❌ Incorrect. Real Answer option is key [${q.answer}]`;
-  } else {
-    fb.className = 'feedback-bar';
+    // Shuffle and pick
+    quizPool = [...fullPool].sort(() => Math.random() - 0.5).slice(0, amount);
+    currentQuizIdx = 0;
+    correctCount = 0;
+    answeredCount = 0;
+    showScreen('quiz');
+    renderQuizQuestion();
   }
 
-  document.getElementById('next-btn').textContent = (idx === total - 1) ? 'Finish Evaluation' : 'Next';
-}
+  function renderQuizQuestion() {
+    let q = quizPool[currentQuizIdx];
+    document.getElementById('quiz-progress').textContent = "Question " + (currentQuizIdx + 1) + " of " + quizPool.length;
+    document.getElementById('quiz-score').textContent = "Score: " + correctCount + "/" + answeredCount;
+    document.getElementById('question-text').textContent = q.question;
+    
+    let optContainer = document.getElementById('options-container');
+    optContainer.innerHTML = "";
+    document.getElementById('next-btn').disabled = true;
 
-function selectOption(letter) {
-  const idx = session.current;
-  if (session.confirmed[idx]) return;
-
-  session.answers[idx] = letter;
-  if (cfg.mode === 'practice') {
-    session.confirmed[idx] = true;
-    if (letter === session.questions[idx].answer) session.correct++; else session.wrong++;
-  }
-  renderQuestion();
-}
-
-function toggleMark() {
-  const idx = session.current;
-  if (session.marked.has(idx)) session.marked.delete(idx); else session.marked.add(idx);
-  renderQuestion();
-}
-
-function prevQuestion() { if (session.current > 0) { session.current--; renderQuestion(); } }
-function nextQuestion() {
-  const total = session.questions.length;
-  if (session.current < total - 1) {
-    session.current++;
-    renderQuestion();
-  } else {
-    completeQuizEvaluation();
-  }
-}
-
-function completeQuizEvaluation() {
-  if (timerInterval) clearInterval(timerInterval);
-  if (cfg.mode === 'exam') {
-    session.questions.forEach((q, idx) => {
-      const ans = session.answers[idx];
-      if (ans === q.answer) session.correct++; else session.wrong++;
+    Object.keys(q.options).forEach(key => {
+      let btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<strong>${key}:</strong> ${q.options[key]}`;
+      btn.onclick = () => handleAnswerSelect(key, btn);
+      optContainer.appendChild(btn);
     });
   }
-  
-  const total = session.questions.length;
-  const pct = Math.round((session.correct / total) * 100);
-  
-  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  saveHistory({ pct: pct, correct: session.correct, total: total, mode: cfg.mode, date: dateStr });
 
-  const screen = document.getElementById('screen-results');
-  screen.innerHTML = `
-    <div class="score-hero">
-      <h2>Evaluation Finished!</h2>
-      <div class="score-pct" style="font-size:64px; color:var(--cyan); margin:20px 0;">${pct}%</div>
-      <p class="score-msg">You answered ${session.correct} correctly out of ${total} statements.</p>
-    </div>
-    <div class="results-actions">
-      <button class="btn btn-primary" onclick="showSetup()">Return to Dashboard</button>
-    </div>
-  `;
-  
-  document.getElementById('screen-quiz').style.display = 'none';
-  screen.style.display = 'block';
-}
+  function handleAnswerSelect(selectedKey, clickedBtn) {
+    let q = quizPool[currentQuizIdx];
+    let buttons = document.querySelectorAll('.option-btn');
+    buttons.forEach(b => b.disabled = true); // Lock inputs
+    
+    answeredCount++;
+    if(selectedKey === q.answer) {
+      clickedBtn.classList.add('correct');
+      correctCount++;
+    } else {
+      clickedBtn.classList.add('wrong');
+      // Highlight correct answer
+      buttons.forEach(b => {
+        if(b.innerText.startsWith(q.answer + ":")) b.classList.add('correct');
+      });
+    }
 
-function showToast(msg, type = "success") {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.className = `toast show ${type}`;
-  setTimeout(() => toast.classList.remove('show'), 3000);
-}
+    document.getElementById('quiz-score').textContent = "Score: " + correctCount + "/" + answeredCount;
+    document.getElementById('next-btn').disabled = false;
+  }
+
+  function nextQuestion() {
+    currentQuizIdx++;
+    if(currentQuizIdx < quizPool.length) {
+      renderQuizQuestion();
+    } else {
+      alert("Quiz Complete! Your final score: " + correctCount + " out of " + quizPool.length);
+      showScreen('setup');
+    }
+  }
+
+  // Initial load
+  updateStatusText();
 </script>
-
-<div id="loading-overlay" class="loading-overlay"><div class="spinner"></div><p>Simulating Data Array Engine...</p></div>
-
 </body>
 </html>
