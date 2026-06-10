@@ -3,85 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate EASA Aviation CBT Simulator</title>
+<title>ProATPL Premium Aviation Flight Simulator</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
   :root {
-    --bg: #080d1a; --bg2: #0d1528; --bg3: #121d35; --card: #0f1a2e;
-    --border: #1e3052; --border2: #2a4570; --cyan: #00cfff; --cyan2: #00a8d4;
-    --green: #00e676; --red: #ff4757; --amber: #ffb700; --text: #e8f0ff; --text2: #8fa8cc;
+    --bg: #060a13;
+    --bg2: #0b1121;
+    --bg3: #111a30;
+    --card: #0d162b;
+    --border: #1b2a4a;
+    --border-glow: #00cfff;
+    --cyan: #00cfff;
+    --cyan-hover: #00a8d4;
+    --green: #00e676;
+    --red: #ff4757;
+    --amber: #ffb700;
+    --text: #e8f0ff;
+    --text-muted: #8fa8cc;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text);
-    min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px;
+    min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center;
   }
 
-  .app { width: 100%; max-width: 850px; z-index: 1; }
-  header { text-align: center; padding: 20px 0; }
-  h1 { font-size: 28px; color: #fff; text-shadow: 0 0 10px rgba(0,207,255,0.4); margin-bottom: 5px; }
+  .app-container { width: 100%; max-width: 950px; }
   
-  .subject-select-wrap { margin-bottom: 15px; text-align: center; }
-  select {
-    background: var(--bg2); color: var(--cyan); border: 2px solid var(--cyan);
-    padding: 10px 16px; font-family: inherit; font-size: 16px; font-weight: bold;
-    border-radius: 8px; cursor: pointer; outline: none;
+  /* Navigation Bar */
+  nav {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 15px 25px; border-radius: 12px; margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
+  .brand { font-size: 20px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+  .brand span { color: var(--cyan); text-shadow: 0 0 10px rgba(0,207,255,0.3); }
+  .nav-buttons { display: flex; gap: 10px; }
 
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+  /* Buttons */
   .btn {
-    display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px;
+    display: inline-flex; align-items: center; justify-content: center; padding: 10px 18px;
     border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
-    border: none; transition: all 0.2s; background: var(--border2); color: #fff;
+    border: 1px solid var(--border); background: var(--bg3); color: var(--text); transition: all 0.2s;
   }
-  .btn-primary { background: linear-gradient(135deg, var(--cyan2), var(--cyan)); color: #000; font-weight: bold; }
-  .btn-primary:hover { box-shadow: 0 0 15px rgba(0,207,255,0.5); }
-  .btn-success { background: var(--green); color: #000; font-weight: bold; }
-  
-  .panel { display: none; }
+  .btn:hover { background: var(--border); border-color: var(--text-muted); color: #fff; }
+  .btn-primary { background: linear-gradient(135deg, var(--cyan-hover), var(--cyan)); color: #060a13; font-weight: 700; border: none; }
+  .btn-primary:hover { box-shadow: 0 0 15px rgba(0,207,255,0.4); transform: translateY(-1px); }
+  .btn-success { background: var(--green); color: #060a13; font-weight: 700; border: none; }
+  .btn-danger { background: rgba(255, 71, 87, 0.15); color: var(--red); border-color: var(--red); }
+  .btn-danger:hover { background: var(--red); color: #000; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+
+  /* Dropdown styling */
+  .subject-select {
+    background: var(--bg2); color: var(--cyan); border: 2px solid var(--cyan);
+    padding: 10px 16px; font-family: inherit; font-size: 15px; font-weight: 600;
+    border-radius: 8px; outline: none; cursor: pointer;
+  }
+
+  /* Dashboard Cards grid */
+  .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 12px;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--cyan);
+  }
+  .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+  .stat-value { font-size: 26px; font-weight: 700; color: #fff; font-family: 'JetBrains Mono', monospace; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+  .panel { display: none; animation: fadeIn 0.3s ease-in-out; }
   .panel.active { display: block; }
 
-  /* Grid Layouts */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 0; }
-  @media(max-width: 500px){ .grid-2 { grid-template-columns: 1fr; } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Option Buttons */
-  .option-btn {
-    width: 100%; text-align: left; padding: 12px 16px; background: var(--bg2);
-    border: 1.5px solid var(--border2); color: var(--text2); border-radius: 8px;
-    margin-bottom: 8px; font-family: inherit; cursor: pointer; font-size: 15px;
+  /* Quiz Layout styles */
+  .options-stack { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+  .opt-btn {
+    width: 100%; text-align: left; padding: 15px 20px; background: var(--bg2);
+    border: 1px solid var(--border); color: var(--text); border-radius: 8px;
+    font-family: inherit; cursor: pointer; font-size: 15px; transition: all 0.15s;
   }
-  .option-btn:hover { border-color: var(--cyan); color: #fff; }
-  .option-btn.selected { border-color: var(--cyan); background: rgba(0,207,255,0.1); color: #fff; }
-  .option-btn.correct { border-color: var(--green); background: rgba(0,230,118,0.1); color: #fff; }
-  .option-btn.wrong { border-color: var(--red); background: rgba(255,71,87,0.1); color: #fff; }
+  .opt-btn:hover { border-color: var(--cyan); background: rgba(0,207,255,0.02); }
+  .opt-btn.selected { border-color: var(--cyan); background: rgba(0,207,255,0.1); font-weight: 600; }
+  .opt-btn.correct { border-color: var(--green); background: rgba(0,230,118,0.15); color: #fff; font-weight: 600; }
+  .opt-btn.wrong { border-color: var(--red); background: rgba(255,71,87,0.15); color: #fff; }
 
-  /* Importer styles */
-  textarea {
-    width: 100%; height: 200px; background: var(--bg2); color: #fff;
-    font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 12px;
-    border: 1px solid var(--border2); border-radius: 8px; resize: vertical; margin-bottom: 12px;
+  /* Input form fields */
+  textarea, input[type="text"] {
+    width: 100%; background: var(--bg2); color: #fff; border: 1px solid var(--border);
+    padding: 12px; font-family: inherit; border-radius: 8px; outline: none; font-size: 14px;
   }
+  textarea:focus, input[type="text"]:focus { border-color: var(--cyan); }
+  textarea { height: 180px; font-family: 'JetBrains Mono', monospace; resize: vertical; }
+
+  /* Manager Question Row Layout */
+  .q-manage-item {
+    background: var(--bg2); border: 1px solid var(--border); padding: 15px;
+    border-radius: 8px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .q-manage-text { font-size: 14px; font-weight: 600; line-height: 1.4; }
+  .q-manage-actions { display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--border); padding-top: 10px; }
+  
+  .search-box { margin-bottom: 15px; display: flex; gap: 10px; }
 </style>
 </head>
 <body>
 
-<div class="app">
-  <header>
-    <h1>✈️ ATPL Core Simulator</h1>
-    <p style="color: var(--text2)">Multi-Subject Study Engine</p>
-  </header>
-
-  <div class="subject-select-wrap">
-    <label style="font-size: 12px; color: var(--text2); display:block; margin-bottom:5px;">ACTIVE SUBJECT:</label>
-    <select id="subject-selector" onchange="changeSubject()">
+<div class="app-container">
+  
+  <nav>
+    <div class="brand">✈️ Pro<span>ATPL</span> Engine</div>
+    <select id="global-subject-selector" class="subject-select" onchange="switchSubject(this.value)">
       <option value="POF">081 - Principles of Flight (POF)</option>
-      <option value="AGK">021 - Airframe, Systems, Powerplant (AGK)</option>
+      <option value="AGK">021 - Airframe, Systems, Powerplant</option>
       <option value="MET">050 - Meteorology</option>
-      <option value="NAV">061 - General Navigation</option>
       <option value="LAW">010 - Air Law</option>
+      <option value="NAV">061 - General Navigation</option>
       <option value="OPS">070 - Operational Procedures</option>
       <option value="PERF">032 - Performance</option>
       <option value="FPM">031 - Flight Planning & Monitoring</option>
@@ -91,221 +133,447 @@
       <option value="MASS">033 - Mass & Balance</option>
       <option value="COMM">090 - Communications</option>
     </select>
-  </div>
+    <div class="nav-buttons">
+      <button class="btn" onclick="navigateTo('dashboard')">🏠 Home</button>
+      <button class="btn" onclick="navigateTo('manager')">🛠️ Bank Manager</button>
+      <button class="btn btn-primary" onclick="navigateTo('importer')">📥 Bulk Import</button>
+    </div>
+  </nav>
 
-  <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
-    <button class="btn" onclick="showScreen('setup')">🏠 Home</button>
-    <button class="btn" onclick="showScreen('importer')">📥 Bulk Importer</button>
-  </div>
+  <div id="screen-dashboard" class="panel active">
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <div class="stat-label">Active Subject Pool</div>
+        <div class="stat-value" id="stat-active-count">0 Qs</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Simulator Runs</div>
+        <div class="stat-value" id="stat-total-runs">0 Tests</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Average Performance</div>
+        <div class="stat-value" id="stat-avg-score">0%</div>
+      </div>
+    </div>
 
-  <div id="screen-setup" class="panel active card">
-    <h3 style="margin-bottom:10px;">Practice Lab</h3>
-    <p style="color: var(--text2); margin-bottom:15px;" id="bank-status">0 questions loaded for this subject.</p>
-    
-    <label>Select Question Count:</label>
-    <div class="grid-2">
-      <button class="btn btn-primary" onclick="startQuiz(20)">Quick Test (20 Qs)</button>
-      <button class="btn btn-primary" onclick="startQuiz(50)">Full Block (50 Qs)</button>
+    <div class="card">
+      <h3 style="margin-bottom: 10px;">⚡ Launch Flight Test Simulation</h3>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+        Configure your question quantity to spin up a randomized testing session from the current loaded active parameters database.
+      </p>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button class="btn btn-primary" onclick="initiateQuizSession(10)">Quick Session (10 Qs)</button>
+        <button class="btn btn-primary" onclick="initiateQuizSession(20)">Standard Block (20 Qs)</button>
+        <button class="btn btn-primary" onclick="initiateQuizSession(50)">Full Exam Prep (50 Qs)</button>
+        <button class="btn btn-primary" onclick="initiateQuizSession(100)">Marathon Mode (100 Qs)</button>
+      </div>
     </div>
   </div>
 
   <div id="screen-quiz" class="panel card">
-    <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--cyan); margin-bottom:10px;">
-      <span id="quiz-progress">Question 1 of 10</span>
-      <span id="quiz-score">Score: 0/0</span>
+    <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--cyan); border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 15px;">
+      <span id="quiz-header-index" style="font-family: 'JetBrains Mono', monospace; font-weight:700;">QUESTION 1 OF --</span>
+      <span id="quiz-header-score" style="font-family: 'JetBrains Mono', monospace; font-weight:700;">SCORE: 0/0</span>
     </div>
-    <h2 id="question-text" style="font-size:17px; margin-bottom:20px; line-height:1.5;"></h2>
-    <div id="options-container"></div>
     
-    <div style="margin-top:20px; text-align:right;">
-      <button id="next-btn" class="btn" onclick="nextQuestion()" disabled>Next Question ➡️</button>
+    <p id="quiz-question-body" style="font-size: 17px; font-weight: 500; line-height: 1.5; margin-bottom: 20px; color: #fff;"></p>
+    
+    <div id="quiz-options-wrapper" class="options-stack"></div>
+    
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+      <button id="quiz-next-action-btn" class="btn btn-primary" onclick="advanceQuizIndex()" disabled>Next Question ➡️</button>
     </div>
   </div>
 
   <div id="screen-importer" class="panel card">
-    <h2 style="margin-bottom:10px; color: var(--cyan)">📥 Bulk Smart Importer</h2>
-    <p style="font-size:13px; color:var(--text2); margin-bottom:15px;">
-      Paste your text file contents below. The system will read them and automatically **skip any questions** that match existing text to protect against duplication!
+    <h3 style="color: var(--cyan); margin-bottom: 10px;">📥 Smart Text Importer Engine</h3>
+    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.4;">
+      Paste raw text data matching your standard formatting configuration here. The system will slice question nodes, cross-check text signatures, and **skip matching text inputs to block duplication** automatically!
     </p>
     
-    <textarea id="import-input" placeholder="Paste your question txt dump data here..."></textarea>
+    <textarea id="bulk-paste-input" placeholder="Paste your question txt dump data here... (Example format: Question: ... A: ... B: ... C: ... D: ... Answer: C)"></textarea>
     
-    <button class="btn btn-success" onclick="processBulkImport()">⚡ Run Smart Import</button>
-    <button class="btn" style="background:#ff4757; color:#fff;" onclick="clearSubjectBank()">🗑️ Wipe Current Subject Bank</button>
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+      <button class="btn btn-success" onclick="executeSmartImport()">⚡ Run Smart Anti-Duplicate Import</button>
+      <button class="btn btn-danger" onclick="triggerWipeClearance()">🗑️ Wipe Active Subject Bank</button>
+    </div>
+  </div>
+
+  <div id="screen-manager" class="panel card">
+    <h3 style="margin-bottom: 8px;">🛠️ Question Database Bank Manager</h3>
+    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
+      Directly look through, audit, modify, or eliminate items currently operating inside the browser storage system space.
+    </p>
+
+    <div class="search-box">
+      <input type="text" id="manager-search-field" oninput="renderManagerList()" placeholder="🔍 Filter questions by keyword matching...">
+      <button class="btn btn-success" onclick="openCreateManualModal()">➕ Create Question</button>
+    </div>
+
+    <div id="manager-list-container" style="max-height: 500px; overflow-y: auto; padding-right: 5px;"></div>
+  </div>
+
+  <div id="editor-modal-layer" class="panel card" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 600px; z-index: 100; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border-color: var(--cyan);">
+    <h4 id="modal-title-header" style="margin-bottom: 15px; color: var(--cyan);">Edit Question Record</h4>
+    
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div>
+        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px;">Question text statement:</label>
+        <input type="text" id="modal-field-q">
+      </div>
+      <div>
+        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px;">Option A:</label>
+        <input type="text" id="modal-field-a">
+      </div>
+      <div>
+        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px;">Option B:</label>
+        <input type="text" id="modal-field-b">
+      </div>
+      <div>
+        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px;">Option C:</label>
+        <input type="text" id="modal-field-c">
+      </div>
+      <div>
+        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px;">Option D:</label>
+        <input type="text" id="modal-field-d">
+      </div>
+      <div>
+        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px;">Correct Answer Choice (A, B, C, or D):</label>
+        <input type="text" id="modal-field-key" maxlength="1" style="width: 60px; text-align: center; text-transform: uppercase;">
+      </div>
+    </div>
+
+    <div style="margin-top: 20px; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+      <button class="btn" onclick="closeEditorModalWindow()">Cancel</button>
+      <button class="btn btn-success" onclick="saveEditorModalChanges()">💾 Save Changes</button>
+    </div>
   </div>
 
 </div>
 
 <script>
-  // Master database holding questions for all subjects
-  let MASTER_DB = JSON.parse(localStorage.getItem('aviation_cbt_master') || '{"POF":[],"AGK":[],"MET":[],"NAV":[],"LAW":[],"OPS":[],"PERF":[],"FPM":[],"HPL":[],"RNAV":[],"INST":[],"MASS":[],"COMM":[]}');
+  // Master database state structure initialized securely out of LocalStorage
+  let DATAFRAME = JSON.parse(localStorage.getItem('atpl_master_dataframe') || '{"POF":[],"AGK":[],"MET":[],"LAW":[],"NAV":[],"OPS":[],"PERF":[],"FPM":[],"HPL":[],"RNAV":[],"INST":[],"MASS":[],"COMM":[]}');
+  
+  // Persistent tracking indexes for running simulations
+  let STATS = JSON.parse(localStorage.getItem('atpl_master_stats') || '{"runs":0, "correct":0, "total":0}');
 
-  let currentSubject = "POF";
-  let quizPool = [];
-  let currentQuizIdx = 0;
-  let correctCount = 0;
-  let answeredCount = 0;
+  let activeSubjectKey = "POF";
+  let activeQuizPool = [];
+  let currentQuizPointer = 0;
+  let sessionCorrectCount = 0;
+  let sessionAnsweredCount = 0;
+  
+  // Modal auxiliary target memory state
+  let currentEditingTargetIndex = null; 
 
-  function updateStatusText() {
-    let count = MASTER_DB[currentSubject] ? MASTER_DB[currentSubject].length : 0;
-    document.getElementById('bank-status').textContent = count + " unique questions loaded in your local browser storage for " + currentSubject + ".";
+  // Unified window rendering routing table
+  function navigateTo(targetPanelId) {
+    document.querySelectorAll('.panel').forEach(elem => elem.classList.remove('active'));
+    document.getElementById('screen-' + targetPanelId).classList.add('active');
+    closeEditorModalWindow(); // Guarantee closing of floating utility overlays
+    refreshDashboardCounters();
+    if(targetPanelId === 'manager') renderManagerList();
   }
 
-  function changeSubject() {
-    currentSubject = document.getElementById('subject-selector').value;
-    updateStatusText();
+  function switchSubject(subjectKeyString) {
+    activeSubjectKey = subjectKeyString;
+    document.getElementById('global-subject-selector').value = subjectKeyString;
+    refreshDashboardCounters();
+    if(document.getElementById('screen-manager').classList.contains('active')) renderManagerList();
   }
 
-  function showScreen(screenId) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('screen-' + screenId).classList.add('active');
-    if(screenId === 'setup') updateStatusText();
-  }
-
-  // --- SMART ANTI-DUPLICATE IMPORTER ---
-  function processBulkImport() {
-    let rawText = document.getElementById('import-input').value;
-    if(!rawText.trim()) { alert("Please paste text first!"); return; }
-
-    // Split text into individual chunks by separating on the word "Question:"
-    let chunks = rawText.split(/Question:/i);
-    let addedCount = 0;
-    let duplicateCount = 0;
-
-    if (!MASTER_DB[currentSubject]) MASTER_DB[currentSubject] = [];
+  function refreshDashboardCounters() {
+    let currentPoolLength = DATAFRAME[activeSubjectKey] ? DATAFRAME[activeSubjectKey].length : 0;
+    document.getElementById('stat-active-count').textContent = currentPoolLength + " Qs";
+    document.getElementById('stat-total-runs').textContent = STATS.runs + " Runs";
     
-    // Create a fast lookup map of existing questions to spot duplicates easily
-    let existingTexts = new Set(MASTER_DB[currentSubject].map(q => cleanString(q.question)));
+    let percentage = 0;
+    if (STATS.total > 0) {
+      percentage = Math.round((STATS.correct / STATS.total) * 100);
+    }
+    document.getElementById('stat-avg-score').textContent = percentage + "%";
+  }
 
-    chunks.forEach(chunk => {
-      if(!chunk.trim()) return;
+  // --- SMART PARSING LOGIC ENGINE (ANTI-DUPLICATE SHIELD) ---
+  function executeSmartImport() {
+    let dataBuffer = document.getElementById('bulk-paste-input').value;
+    if (!dataBuffer.trim()) { alert("Please paste text data prior to execution!"); return; }
 
-      // Extract details using lines
-      let lines = chunk.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      let questionText = "";
-      let options = {};
-      let answerKey = "";
+    // Split text accurately into separate modules based on occurrences of "Question:" keywords
+    let rawChunks = dataBuffer.split(/Question:/i);
+    let successfullyAdded = 0;
+    let skippedDuplicatesCount = 0;
 
-      lines.forEach(line => {
-        if (line.toUpperCase().startsWith("A:")) options["A"] = line.substring(2).trim();
-        else if (line.toUpperCase().startsWith("B:")) options["B"] = line.substring(2).trim();
-        else if (line.toUpperCase().startsWith("C:")) options["C"] = line.substring(2).trim();
-        else if (line.toUpperCase().startsWith("D:")) options["D"] = line.substring(2).trim();
-        else if (line.toUpperCase().startsWith("ANSWER:")) answerKey = line.substring(7).trim().toUpperCase();
-        else {
-          if (!line.toUpperCase().startsWith("QUESTION:")) {
-            questionText += (questionText ? " " : "") + line;
+    if (!DATAFRAME[activeSubjectKey]) DATAFRAME[activeSubjectKey] = [];
+
+    // Map current elements to clean alphanumeric key strings to block duplication safely
+    let memoryLookupTable = new Set(DATAFRAME[activeSubjectKey].map(obj => sanitizeStringSignature(obj.question)));
+
+    rawChunks.forEach(chunk => {
+      if (!chunk.trim()) return;
+
+      let splitLines = chunk.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+      let extractedQuestionText = "";
+      let optionBuffer = {'A': 'N/A', 'B': 'N/A', 'C': 'N/A', 'D': 'N/A'};
+      let targetAnswerKey = "A";
+
+      splitLines.forEach(line => {
+        let upperLine = line.toUpperCase();
+        if (upperLine.startsWith("A:") || upperLine.startsWith("A)")) {
+          optionBuffer["A"] = line.substring(2).trim();
+        } else if (upperLine.startsWith("B:") || upperLine.startsWith("B)")) {
+          optionBuffer["B"] = line.substring(2).trim();
+        } else if (upperLine.startsWith("C:") || upperLine.startsWith("C)")) {
+          optionBuffer["C"] = line.substring(2).trim();
+        } else if (upperLine.startsWith("D:") || upperLine.startsWith("D)")) {
+          optionBuffer["D"] = line.substring(2).trim();
+        } else if (upperLine.startsWith("ANSWER:") || upperLine.startsWith("ANSWER")) {
+          let corePart = line.includes(':') ? line.split(':')[1] : line.substring(6);
+          targetAnswerKey = corePart.trim().replace(/[\.\)]/g, "").toUpperCase();
+        } else {
+          // Continuous multiline context concatenation for question descriptions
+          if (!upperLine.startsWith("QUESTION:")) {
+            extractedQuestionText += (extractedQuestionText ? " " : "") + line;
           }
         }
       });
 
-      if(!questionText) return;
-      if(!answerKey) answerKey = "A"; // default failover
+      // Clear any left-over leading numeric flags (e.g., "1312.") from the question line text
+      extractedQuestionText = extractedQuestionText.replace(/^\d+[\s\.\)]*/, '').trim();
 
-      let cleanQ = cleanString(questionText);
+      if (!extractedQuestionText) return;
+      if (!['A', 'B', 'C', 'D'].includes(targetAnswerKey)) targetAnswerKey = "A"; // Safe failover boundary fallback
 
-      // DUPLICATE CHECK PROOFING: If it matches something already in our system, skip it!
-      if (existingTexts.has(cleanQ)) {
-        duplicateCount++;
+      let structuralSignature = sanitizeStringSignature(extractedQuestionText);
+
+      // DUPLICATION FILTER SHIELD: Skip completely if the question is already in the app
+      if (memoryLookupTable.has(structuralSignature)) {
+        skippedDuplicatesCount++;
       } else {
-        MASTER_DB[currentSubject].push({
-          question: questionText,
-          options: options,
-          answer: answerKey
+        DATAFRAME[activeSubjectKey].push({
+          question: extractedQuestionText,
+          options: optionBuffer,
+          answer: targetAnswerKey
         });
-        existingTexts.add(cleanQ);
-        addedCount++;
+        memoryLookupTable.add(structuralSignature);
+        successfullyAdded++;
       }
     });
 
-    // Save to browser memory
-    localStorage.setItem('aviation_cbt_master', JSON.stringify(MASTER_DB));
-    alert("Import Done!\nAdded: " + addedCount + " new questions.\nSkipped Duplicates: " + duplicateCount);
-    document.getElementById('import-input').value = "";
-    showScreen('setup');
+    // Save data permanently to LocalStorage memory
+    localStorage.setItem('atpl_master_dataframe', JSON.stringify(DATAFRAME));
+    
+    alert("Smart Import Engine Actions Complete!\n\nAdded: " + successfullyAdded + " new unique questions.\nSkipped Duplicates: " + skippedDuplicatesCount);
+    document.getElementById('bulk-paste-input').value = "";
+    navigateTo('dashboard');
   }
 
-  function cleanString(str) {
-    return str.toLowerCase().replace(/[^a-z0-9]/g, "");
+  function sanitizeStringSignature(inputString) {
+    return inputString.toLowerCase().replace(/[^a-z0-9]/g, "");
   }
 
-  function clearSubjectBank() {
-    if(confirm("Are you sure you want to clear ALL questions for " + currentSubject + "?")) {
-      MASTER_DB[currentSubject] = [];
-      localStorage.setItem('aviation_cbt_master', JSON.stringify(MASTER_DB));
-      updateStatusText();
-      alert("Cleared!");
+  function triggerWipeClearance() {
+    if (confirm("CRITICAL ACCESSIBILITY WARNING:\n\nAre you absolutely sure you want to clear all loaded data indexes inside " + activeSubjectKey + "? This completely empties this subject profile space!")) {
+      DATAFRAME[activeSubjectKey] = [];
+      localStorage.setItem('atpl_master_dataframe', JSON.stringify(DATAFRAME));
+      refreshDashboardCounters();
+      alert("Subject database index successfully wiped clear.");
     }
   }
 
-  // --- QUIZ GAME LOGIC ---
-  function startQuiz(amount) {
-    let fullPool = MASTER_DB[currentSubject] || [];
-    if(fullPool.length === 0) {
-      alert("Your bank is empty! Go to the Bulk Importer tab first to load questions.");
+  // --- RUNTIME SIMULATOR TESTING LOOPS ---
+  function initiateQuizSession(selectionSize) {
+    let universalPool = DATAFRAME[activeSubjectKey] || [];
+    if (universalPool.length === 0) {
+      alert("Active parameter configuration dataset contains 0 items. Please route over to the Bulk Importer panel screen to parse inputs first!");
       return;
     }
-    // Shuffle and pick
-    quizPool = [...fullPool].sort(() => Math.random() - 0.5).slice(0, amount);
-    currentQuizIdx = 0;
-    correctCount = 0;
-    answeredCount = 0;
-    showScreen('quiz');
-    renderQuizQuestion();
+
+    // Sort randomly and pull questions
+    activeQuizPool = [...universalPool].sort(() => Math.random() - 0.5).slice(0, selectionSize);
+    currentQuizPointer = 0;
+    sessionCorrectCount = 0;
+    sessionAnsweredCount = 0;
+
+    navigateTo('quiz');
+    displayQuizQuestionNode();
   }
 
-  function renderQuizQuestion() {
-    let q = quizPool[currentQuizIdx];
-    document.getElementById('quiz-progress').textContent = "Question " + (currentQuizIdx + 1) + " of " + quizPool.length;
-    document.getElementById('quiz-score').textContent = "Score: " + correctCount + "/" + answeredCount;
-    document.getElementById('question-text').textContent = q.question;
+  function displayQuizQuestionNode() {
+    let node = activeQuizPool[currentQuizPointer];
     
-    let optContainer = document.getElementById('options-container');
-    optContainer.innerHTML = "";
-    document.getElementById('next-btn').disabled = true;
+    document.getElementById('quiz-header-index').textContent = "QUESTION " + (currentQuizPointer + 1) + " OF " + activeQuizPool.length;
+    document.getElementById('quiz-header-score').textContent = "SCORE: " + sessionCorrectCount + "/" + sessionAnsweredCount;
+    document.getElementById('quiz-question-body').textContent = node.question;
 
-    Object.keys(q.options).forEach(key => {
-      let btn = document.createElement('button');
-      btn.className = 'option-btn';
-      btn.innerHTML = `<strong>${key}:</strong> ${q.options[key]}`;
-      btn.onclick = () => handleAnswerSelect(key, btn);
-      optContainer.appendChild(btn);
+    let targetBox = document.getElementById('quiz-options-wrapper');
+    targetBox.innerHTML = "";
+    document.getElementById('quiz-next-action-btn').disabled = true;
+
+    Object.keys(node.options).forEach(key => {
+      let optionBtn = document.createElement('button');
+      optionBtn.className = 'opt-btn';
+      optionBtn.innerHTML = `<strong>${key}:</strong> ${node.options[key]}`;
+      optionBtn.onclick = () => parseQuizSelectionChoice(key, optionBtn);
+      targetBox.appendChild(optionBtn);
     });
   }
 
-  function handleAnswerSelect(selectedKey, clickedBtn) {
-    let q = quizPool[currentQuizIdx];
-    let buttons = document.querySelectorAll('.option-btn');
-    buttons.forEach(b => b.disabled = true); // Lock inputs
+  function parseQuizSelectionChoice(selectedKey, elementReference) {
+    let node = activeQuizPool[currentQuizPointer];
+    let siblingButtons = document.querySelectorAll('.opt-btn');
     
-    answeredCount++;
-    if(selectedKey === q.answer) {
-      clickedBtn.classList.add('correct');
-      correctCount++;
+    // Deactivate sibling selectors from receiving secondary inputs
+    siblingButtons.forEach(btn => btn.disabled = true);
+    
+    sessionAnsweredCount++;
+    STATS.total++;
+
+    if (selectedKey === node.answer) {
+      elementReference.classList.add('correct');
+      sessionCorrectCount++;
+      STATS.correct++;
     } else {
-      clickedBtn.classList.add('wrong');
-      // Highlight correct answer
-      buttons.forEach(b => {
-        if(b.innerText.startsWith(q.answer + ":")) b.classList.add('correct');
+      elementReference.classList.add('wrong');
+      siblingButtons.forEach(btn => {
+        if (btn.innerText.startsWith(node.answer + ":")) btn.classList.add('correct');
       });
     }
 
-    document.getElementById('quiz-score').textContent = "Score: " + correctCount + "/" + answeredCount;
-    document.getElementById('next-btn').disabled = false;
+    // Update state matrices inside device LocalStorage memory
+    localStorage.setItem('atpl_master_stats', JSON.stringify(STATS));
+    
+    document.getElementById('quiz-header-score').textContent = "SCORE: " + sessionCorrectCount + "/" + sessionAnsweredCount;
+    document.getElementById('quiz-next-action-btn').disabled = false;
   }
 
-  function nextQuestion() {
-    currentQuizIdx++;
-    if(currentQuizIdx < quizPool.length) {
-      renderQuizQuestion();
+  function advanceQuizIndex() {
+    currentQuizPointer++;
+    if (currentQuizPointer < activeQuizPool.length) {
+      displayQuizQuestionNode();
     } else {
-      alert("Quiz Complete! Your final score: " + correctCount + " out of " + quizPool.length);
-      showScreen('setup');
+      // Update test runs completed
+      STATS.runs++;
+      localStorage.setItem('atpl_master_stats', JSON.stringify(STATS));
+      alert("Simulation Phase Ended!\n\nSession Scoring Result Profile Summary:\nCorrect: " + sessionCorrectCount + " out of " + activeQuizPool.length + " questions answered.");
+      navigateTo('dashboard');
     }
   }
 
-  // Initial load
-  updateStatusText();
+  // --- BANK MANAGER & LIST RENDERING LOGIC ---
+  function renderManagerList() {
+    let listWrapper = document.getElementById('manager-list-container');
+    listWrapper.innerHTML = "";
+
+    let currentSubjectArray = DATAFRAME[activeSubjectKey] || [];
+    let searchFilterKeyword = document.getElementById('manager-search-field').value.toLowerCase().trim();
+
+    if (currentSubjectArray.length === 0) {
+      listWrapper.innerHTML = `<p style="color:var(--text-muted); font-size:14px; padding:10px;">No questions found inside this subject block yet.</p>`;
+      return;
+    }
+
+    currentSubjectArray.forEach((item, sequentialIndex) => {
+      // Filter functionality matching question content descriptions
+      if (searchFilterKeyword && !item.question.toLowerCase().includes(searchFilterKeyword)) return;
+
+      let rowItem = document.createElement('div');
+      rowItem.className = 'q-manage-item';
+      rowItem.innerHTML = `
+        <div class="q-manage-text"><strong>Q${sequentialIndex + 1}:</strong> ${item.question}</div>
+        <div style="font-size:12px; color:var(--text-muted); padding-left: 15px;">
+          A: ${item.options.A} | B: ${item.options.B} | C: ${item.options.C} | D: ${item.options.D}
+          <div style="color: var(--green); margin-top:4px; font-weight:600;">Key Answer Choice: ${item.answer}</div>
+        </div>
+        <div class="q-manage-actions">
+          <button class="btn btn-sm" onclick="openEditFieldModal(${sequentialIndex})">✏️ Edit Field</button>
+          <button class="btn btn-sm btn-danger" onclick="executeItemDeletion(${sequentialIndex})">🗑️ Delete</button>
+        </div>
+      `;
+      listWrapper.appendChild(rowItem);
+    });
+  }
+
+  function executeItemDeletion(targetIndex) {
+    if (confirm("Are you sure you want to completely delete Question #" + (targetIndex + 1) + "?")) {
+      DATAFRAME[activeSubjectKey].splice(targetIndex, 1);
+      localStorage.setItem('atpl_master_dataframe', JSON.stringify(DATAFRAME));
+      renderManagerList();
+      refreshDashboardCounters();
+    }
+  }
+
+  // --- MODAL LAYER SUBSYSTEM CONTROLS ---
+  function openEditFieldModal(targetIndex) {
+    currentEditingTargetIndex = targetIndex;
+    let node = DATAFRAME[activeSubjectKey][targetIndex];
+
+    document.getElementById('modal-title-header').textContent = "Modify Question Record Element #" + (targetIndex + 1);
+    document.getElementById('modal-field-q').value = node.question;
+    document.getElementById('modal-field-a').value = node.options.A;
+    document.getElementById('modal-field-b').value = node.options.B;
+    document.getElementById('modal-field-c').value = node.options.C;
+    document.getElementById('modal-field-d').value = node.options.D;
+    document.getElementById('modal-field-key').value = node.answer;
+
+    document.getElementById('editor-modal-layer').classList.add('active');
+  }
+
+  function openCreateManualModal() {
+    currentEditingTargetIndex = -1; // Flag index identifier indicating new item declaration
+
+    document.getElementById('modal-title-header').textContent = "Create Brand New Custom Question Element";
+    document.getElementById('modal-field-q').value = "";
+    document.getElementById('modal-field-a').value = "";
+    document.getElementById('modal-field-b').value = "";
+    document.getElementById('modal-field-c').value = "";
+    document.getElementById('modal-field-d').value = "";
+    document.getElementById('modal-field-key').value = "A";
+
+    document.getElementById('editor-modal-layer').classList.add('active');
+  }
+
+  function closeEditorModalWindow() {
+    document.getElementById('editor-modal-layer').classList.remove('active');
+    currentEditingTargetIndex = null;
+  }
+
+  function saveEditorModalChanges() {
+    let qVal = document.getElementById('modal-field-q').value.trim();
+    let aVal = document.getElementById('modal-field-a').value.trim();
+    let bVal = document.getElementById('modal-field-b').value.trim();
+    let cVal = document.getElementById('modal-field-c').value.trim();
+    let dVal = document.getElementById('modal-field-d').value.trim();
+    let keyVal = document.getElementById('modal-field-key').value.trim().toUpperCase();
+
+    if (!qVal || !aVal || !bVal || !cVal || !dVal) { alert("All content entry fields must be filled!"); return; }
+    if (!['A', 'B', 'C', 'D'].includes(keyVal)) { alert("Correct Choice key selection boundary field must be A, B, C, or D!"); return; }
+
+    let targetNodePayload = {
+      question: qVal,
+      options: {'A': aVal, 'B': bVal, 'C': cVal, 'D': dVal},
+      answer: keyVal
+    };
+
+    if (currentEditingTargetIndex === -1) {
+      // Append manually configured additions
+      if(!DATAFRAME[activeSubjectKey]) DATAFRAME[activeSubjectKey] = [];
+      DATAFRAME[activeSubjectKey].push(targetNodePayload);
+    } else {
+      // Overwrite existing targeted indexes
+      DATAFRAME[activeSubjectKey][currentEditingTargetIndex] = targetNodePayload;
+    }
+
+    localStorage.setItem('atpl_master_dataframe', JSON.stringify(DATAFRAME));
+    closeEditorModalWindow();
+    renderManagerList();
+    refreshDashboardCounters();
+  }
+
+  // Self Bootstrapping Entry Point Initialization
+  refreshDashboardCounters();
 </script>
+
 </body>
 </html>
