@@ -680,10 +680,13 @@ async function getActivePool(sid) {
 }
 
 async function countActive(sid) {
-  const builtin = BUILTIN[sid] || [];
+   const builtin = BUILTIN[sid] || [];
   const deleted = await getDeletedIds(sid);
   const custom = await getCustomQs(sid);
-  return builtin.length - deleted.size + custom.length;
+
+  const activeBuiltin = Math.max(0, builtin.length - deleted.size);
+
+  return activeBuiltin + custom.length;
 }
 
 // ══════════════════════════════════════════════════════════════════
