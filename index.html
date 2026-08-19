@@ -1482,7 +1482,38 @@ function handleFileImport(e) {
   const r = new FileReader();
   r.onload = async event => {
     try {
-      const parsed = JSON.parse(event.target.result);
+      
+      let parsed;
+
+      try {
+        parsed = JSON.parse(event.target.result);
+      } catch (error) {
+        console.error("❌ JSON PARSE ERROR:", error.message);
+
+        const text = event.target.result;
+        const match = error.message.match(/position (\d+)/);
+
+        if (match) {
+          const position = Number(match[1]);
+
+          console.error("❌ Error position:", position);
+
+          console.error(
+            "🔎 Problem area:",
+            text.substring(
+              Math.max(0, position - 150),
+              Math.min(text.length, position + 150)
+            )
+          );
+
+          console.error(
+            "📍 Character at error:",
+            JSON.stringify(text[position])
+          );
+        }
+
+        throw error;
+      }
       if (!Array.isArray(parsed)) throw new Error('Data tracking payloads stream is not a structural layout arrays.');
 
       // Basic integrity filtering assertions loops metrics validations routines
