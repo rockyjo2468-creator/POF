@@ -7,12 +7,31 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 :root{
-  --bg:#080d1a;--bg2:#0d1528;--bg3:#121d35;--card:#0f1a2e;--card2:#16243f;
-  --border:#1e3052;--border2:#2a4570;
-  --cyan:#00cfff;--cyan2:#00a8d4;--amber:#ffb700;--green:#00e676;--red:#ff4757;
-  --purple:#a78bfa;
-  --text:#e8f0ff;--text2:#8fa8cc;--text3:#4a6080;
-  --r:12px;--r2:8px;
+  --bg:#F5F7FA;
+  --bg2:#F8FAFC;
+  --bg3:#EEF3F8;
+
+  --card:#FFFFFF;
+  --card2:#FFFFFF;
+
+  --border:#E0E6EF;
+  --border2:#C9D4E2;
+
+  --cyan:#1261D6;
+  --cyan2:#0B4FAF;
+
+  --amber:#D89A18;
+  --green:#0FA66A;
+  --red:#D64545;
+
+  --purple:#6B5CC5;
+
+  --text:#0B1F44;
+  --text2:#344A68;
+  --text3:#71829A;
+
+  --r:12px;
+  --r2:8px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
@@ -161,18 +180,32 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
 .opts{margin-top:18px;display:flex;flex-direction:column;gap:7px}
 .opt-btn{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;
   padding:13px 16px;border-radius:var(--r2);border:1.5px solid var(--border2);
-  background:var(--bg2);cursor:pointer;transition:all .17s;font-family:inherit;
+  background:#FFFFFF;cursor:pointer;transition:all .17s;font-family:inherit;
   color:var(--text2);font-size:13px;line-height:1.5}
 .opt-btn:hover:not(:disabled){border-color:var(--cyan);color:var(--text);background:rgba(0,207,255,.04)}
 .opt-btn.selected{border-color:var(--cyan);color:var(--text);background:rgba(0,207,255,.08)}
-.opt-btn.correct{border-color:var(--green);background:rgba(0,230,118,.08);color:var(--text)}
-.opt-btn.wrong{border-color:var(--red);background:rgba(255,71,87,.08);color:var(--text)}
+.opt-btn.correct{ border-color:#0FA66A;
+  background:rgba(15,166,106,.06);
+  color:var(--text);
+  box-shadow:0 0 0 1px rgba(15,166,106,.12),
+             0 0 10px rgba(15,166,106,.12);}
+.opt-btn.wrong{border-color:#D64545;
+  background:rgba(214,69,69,.06);
+  color:var(--text);
+  box-shadow:0 0 0 1px rgba(214,69,69,.12),
+             0 0 10px rgba(214,69,69,.12);}
 .opt-btn:disabled{cursor:default}
 .opt-letter{display:flex;align-items:center;justify-content:center;
   min-width:26px;height:26px;border-radius:6px;border:1.5px solid currentColor;
   font-weight:700;font-size:12px;flex-shrink:0;margin-top:1px;font-family:'JetBrains Mono'}
-.opt-btn.correct .opt-letter{background:var(--green);border-color:var(--green);color:#000}
-.opt-btn.wrong .opt-letter{background:var(--red);border-color:var(--red);color:#fff}
+.opt-btn.correct .opt-letter{background:#0FA66A;
+  border-color:#0FA66A;
+  color:#FFFFFF;
+  box-shadow:0 0 8px rgba(15,166,106,.20);}
+.opt-btn.wrong .opt-letter{ background:#D64545;
+  border-color:#D64545;
+  color:#FFFFFF;
+  box-shadow:0 0 8px rgba(214,69,69,.20);}
 .opt-btn.selected:not(.correct):not(.wrong) .opt-letter{background:var(--cyan);border-color:var(--cyan);color:#000}
 .fb-bar{margin-top:14px;padding:11px 14px;border-radius:var(--r2);font-size:12px;
   font-weight:500;display:none;align-items:center;gap:8px;line-height:1.5}
@@ -676,7 +709,10 @@ async function countActive(sid) {
   const builtin = BUILTIN[sid] || [];
   const deleted = await getDeletedIds(sid);
   const custom = await getCustomQs(sid);
-  return builtin.length - deleted.size + custom.length;
+
+  const activeBuiltin = Math.max(0, builtin.length - deleted.size);
+
+  return activeBuiltin + custom.length;
 }
 
 // ══════════════════════════════════════════════════════════════════
